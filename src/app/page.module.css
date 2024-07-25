@@ -1,0 +1,13 @@
+@import '../styles/variables';
+
+.main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.title {
+  color: $primary-color;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}

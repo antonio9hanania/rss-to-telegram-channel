@@ -1,11 +1,16 @@
+// src/components/LogList.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import styles from './LogList.module.scss';
+import { Log } from '../lib/db';
 
-export default function LogList({ initialLogs }) {
-  const [logs, setLogs] = useState(initialLogs);
+interface LogListProps {
+  initialLogs: Log[];
+}
+export default function LogList({ initialLogs }: LogListProps) {
+  const [logs, setLogs] = useState<Log[]>(initialLogs);
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -20,7 +25,7 @@ export default function LogList({ initialLogs }) {
 
   return (
     <ul className={styles.logList}>
-      {logs.map((log, index) => (
+      {logs.map((log: Log, index: number) => (
         <li key={index} className={`${styles.logItem} ${index === 19 ? styles.fadeOut : ''}`}>
           <span className={styles.timestamp}>
             {format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss')}

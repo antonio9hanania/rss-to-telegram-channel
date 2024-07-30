@@ -41,12 +41,11 @@ let monitorStartTime: Date | null = null;
 export async function startRssMonitor() {
   if (!isMonitorRunning()) {
     monitorStartTime = new Date();
-    //monitorStartTime.setHours(monitorStartTime.getHours() - 4); // 4 hours back
+    monitorStartTime.setHours(monitorStartTime.getHours() - 4); // 4 hours back
     console.log(`Monitor started at: ${monitorStartTime}`);
     await checkRssFeeds(); // Initial check
     monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds
-    queueProcessInterval = setInterval(processQueuedMessages, TELEGRAM_RATE_LIMIT); // Process queue every rate limit interval
-    console.log('RSS monitor and queue processor started');
+    console.log('RSS monitor started');
   }
 }
 
@@ -69,34 +68,19 @@ export function isMonitorRunning(): boolean {
 
 async function checkRssFeeds() {
   console.log('Checking RSS feeds, monitor start time:', monitorStartTime);
-  console.log('Current queue size:', messageQueue.length);
-
   for (const feedUrl of RSS_FEEDS) {
     try {
       console.log(`Processing feed: ${feedUrl}`);
       const feed = await parser.parseURL(feedUrl);
       console.log(`Found ${feed.items.length} items in feed`);
       for (const item of feed.items.slice(0, 10)) {
-        console.log(`Checking item: ${item.title}, pubDate: ${item.pubDate}`);
+        console.log(`Checking item: ${item.title}, pubDate: ${item.pubDate}, guid: ${item.guid}`);
         const isNew = isNewlyPublishedItem(item);
         const isProcessed = item.guid ? await isItemProcessed(item.guid) : false;
         console.log(`Is new: ${isNew}, Is processed: ${isProcessed}, Has guid: ${Boolean(item.guid)}`);
         if (item.guid && isNew && !isProcessed) {
           console.log(`New item found: ${item.title}`);
-          if (messageQueue.length < MAX_QUEUE_SIZE) {
-            // Check if the item is already in the queue
-            const isInQueue = messageQueue.some(queuedItem => queuedItem.guid === item.guid);
-            if (!isInQueue) {
-              messageQueue.push(item);
-              console.log(`Added item to queue: ${item.title}`);
-              console.log('New queue size:', messageQueue.length);
-            } else {
-              console.log(`Item already in queue, skipping: ${item.title}`);
-            }
-          } else {
-            console.log(`Queue full (${MAX_QUEUE_SIZE} items), skipping item: ${item.title}`);
-            await addLog(`Queue full (${MAX_QUEUE_SIZE} items), skipping item: ${item.title}`);
-          }
+          await sendTelegramMessage(item);
         } else {
           console.log(`Skipping item: ${item.title} (already processed: ${isProcessed}, not new: ${!isNew}, no guid: ${!item.guid})`);
         }
@@ -137,13 +121,14 @@ async function processQueuedMessages() {
   }
 }
 
-function isNewlyPublishedItem(item: CustomItem): boolean {
+function isNewlyPublishedItem(item: Parser.Item): boolean {
   if (!monitorStartTime) return false;
   const publishDate = new Date(item.pubDate || item.isoDate || Date.now());
   console.log(`Item: ${item.title}, Publish Date: ${publishDate}, Monitor Start Time: ${monitorStartTime}`);
-  return publishDate >= monitorStartTime;
+  const isNew = publishDate >= monitorStartTime;
+  console.log(`Is new: ${isNew}`);
+  return isNew;
 }
-
 
 async function sendTelegramMessage(item: Parser.Item) {
   console.log(`Attempting to send message for item: ${item.title}`);
@@ -282,6 +267,7 @@ function getItemTagsFormat(item: CustomItem): string {
   console.log('Generated tags:', tagsArray);
   return tagsArray.join(' ');
 }
+
 export async function manualTrigger() {
   console.log('Manual trigger initiated');
   await checkRssFeeds();

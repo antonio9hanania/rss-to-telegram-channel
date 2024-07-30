@@ -67,9 +67,8 @@ export async function addLog(message: string) {
 }
 
 export async function addProcessedItem(itemId: string, publishedAt: Date) {
+  const client = await getClient();
   try {
-    const client = await getClient();
-
     const result = await client.sql`
       INSERT INTO processed_items (item_id, published_at, processed_at)
       VALUES (${itemId}, ${publishedAt.toISOString()}, CURRENT_TIMESTAMP)
@@ -97,8 +96,21 @@ export async function getProcessedItems(limit: number = 10): Promise<ProcessedIt
 export async function isItemProcessed(itemId: string): Promise<boolean> {
   const client = await getClient();
   const result = await client.sql`
-    SELECT COUNT(*) as count FROM processed_items
-    WHERE item_id = ${itemId}
+    SELECT COUNT(*) as count FROM processed_items WHERE item_id = ${itemId}
   `;
-  return result.rows[0].count > 0;
+  const isProcessed = result.rows[0].count > 0;
+  console.log(`Checking if item ${itemId} is processed: ${isProcessed}`);
+  return isProcessed;
+}
+
+export async function checkDatabaseConnection() {
+  const client = await getClient();
+  try {
+    const result = await client.sql`SELECT NOW()`;
+    console.log('Database connection successful:', result.rows[0]);
+    return true;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    return false;
+  }
 }

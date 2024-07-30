@@ -41,7 +41,7 @@ let monitorStartTime: Date | null = null;
 export async function startRssMonitor() {
   if (!isMonitorRunning()) {
     monitorStartTime = new Date();
-    monitorStartTime.setHours(monitorStartTime.getHours() - 4); // 4 hours back
+    //monitorStartTime.setHours(monitorStartTime.getHours() - 4); // 4 hours back
     console.log(`Monitor started at: ${monitorStartTime}`);
     await checkRssFeeds(); // Initial check
     monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds

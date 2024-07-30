@@ -15,13 +15,16 @@ const RSS_FEEDS = [
 let monitorInterval: NodeJS.Timeout | null = null;
 let lastCheckTime: Date | null = null;
 
+export function isMonitorRunning(): boolean {
+  return monitorInterval !== null;
+}
+
 export function getMonitorStatus() {
   return {
-    isRunning: monitorInterval !== null,
+    isRunning: isMonitorRunning(),
     lastCheckTime,
   };
 }
-
 async function checkRssFeeds() {
   console.log('Checking RSS feeds');
   lastCheckTime = new Date();

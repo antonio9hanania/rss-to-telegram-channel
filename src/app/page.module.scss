@@ -1,3 +1,5 @@
+@import '../styles/variables';
+
 .main {
   min-height: 100vh;
   display: flex;
@@ -9,59 +11,5 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  color: var(--primary-color);
-}
-
-.statusCard {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.statusText {
-  font-size: 1.2rem;
-  font-weight: 500;
-}
-
-.statusRunning {
-  color: var(--secondary-color);
-}
-
-.statusStopped {
-  color: #e74c3c;
-}
-
-.routesCard {
-  margin-top: 2rem;
-}
-
-.subtitle {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-}
-
-.routeList {
-  list-style-type: none;
-  padding: 0;
-}
-
-.routeItem {
-  margin-bottom: 0.75rem;
-}
-
-.routeLink {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.routeDescription {
-  margin-left: 0.5rem;
-  color: var(--text-color);
+  color: $primary-color;
 }

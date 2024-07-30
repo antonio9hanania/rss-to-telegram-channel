@@ -1,3 +1,4 @@
+import styles from './StatusDisplay.module.scss';
 import { RssFeedStatus } from '@/lib/db';
 
 interface StatusDisplayProps {
@@ -8,15 +9,17 @@ interface StatusDisplayProps {
   feedStatus: RssFeedStatus;
 }
 
-export default function StatusDisplay({ monitorStatus, feedStatus }: StatusDisplayProps) {
+ function StatusDisplay({ monitorStatus, feedStatus }: StatusDisplayProps) {
   return (
-    <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <h2 className="text-xl font-bold mb-4">Monitor Status</h2>
-      <p>Status: {monitorStatus.isRunning ? 'Running' : 'Stopped'}</p>
-      <p>Last Check: {monitorStatus.lastCheckTime ? monitorStatus.lastCheckTime.toLocaleString() : 'Never'}</p>
-      <h2 className="text-xl font-bold mt-6 mb-4">Feed Status</h2>
-      <p>Items Processed: {feedStatus.itemsProcessed}</p>
-      <p>Errors: {feedStatus.errors}</p>
+    <div className={styles.statusCard}>
+      <h2 className={styles.subtitle}>Monitor Status</h2>
+      <p className={styles.statusItem}>Status: {monitorStatus.isRunning ? 'Running' : 'Stopped'}</p>
+      <p className={styles.statusItem}>Last Check: {monitorStatus.lastCheckTime ? monitorStatus.lastCheckTime.toLocaleString() : 'Never'}</p>
+      <h2 className={styles.subtitle}>Feed Status</h2>
+      <p className={styles.statusItem}>Items Processed: {feedStatus.itemsProcessed}</p>
+      <p className={styles.statusItem}>Errors: {feedStatus.errors}</p>
     </div>
   );
 }
+
+export default StatusDisplay

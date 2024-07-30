@@ -25,6 +25,7 @@ export function getMonitorStatus() {
     lastCheckTime,
   };
 }
+
 async function checkRssFeeds() {
   console.log('Checking RSS feeds');
   lastCheckTime = new Date();

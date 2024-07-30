@@ -44,7 +44,7 @@ export async function startRssMonitor() {
     //monitorStartTime.setHours(monitorStartTime.getHours() - 4); // 4 hours back
     console.log(`Monitor started at: ${monitorStartTime}`);
     await checkRssFeeds(); // Initial check
-    monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 minutes
+    monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds
     queueProcessInterval = setInterval(processQueuedMessages, TELEGRAM_RATE_LIMIT); // Process queue every rate limit interval
     console.log('RSS monitor and queue processor started');
   }

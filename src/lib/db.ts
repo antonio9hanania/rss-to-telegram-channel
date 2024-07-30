@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { sql as vercelSql } from '@vercel/postgres';
+import { sql } from '@vercel/postgres';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -29,6 +30,22 @@ export interface Log {
   created_at: string;
 }
 
+export interface RssFeedStatus {
+  itemsProcessed: number;
+  errors: number;
+}
+
+export async function getRssFeedStatus(): Promise<RssFeedStatus> {
+  const result = await sql`
+    SELECT 
+      (SELECT COUNT(*) FROM processed_items) as items_processed,
+      (SELECT COUNT(*) FROM logs WHERE message LIKE 'Error%') as errors
+  `;
+  return {
+    itemsProcessed: parseInt(result.rows[0].items_processed),
+    errors: parseInt(result.rows[0].errors),
+  };
+}
 export async function createTables() {
   const client = await getClient();
   await client.sql`

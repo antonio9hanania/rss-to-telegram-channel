@@ -1,20 +1,15 @@
-import '../styles/globals.scss'
-import type { Metadata } from 'next'
-import { checkDatabaseConnection } from '@/lib/db';
+import './globals.css'
+import { Inter } from 'next/font/google'
+import { startRssMonitor } from '@/lib/rssMonitor'
 
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'RSS to Telegram Monitor',
   description: 'Monitor RSS feeds and send updates to Telegram',
 }
 
-checkDatabaseConnection().then((connected) => {
-  if (connected) {
-    console.log('Database connection established');
-  } else {
-    console.error('Failed to connect to the database');
-  }
-});
+startRssMonitor(); // Start the monitor when the server starts
 
 export default function RootLayout({
   children,
@@ -23,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

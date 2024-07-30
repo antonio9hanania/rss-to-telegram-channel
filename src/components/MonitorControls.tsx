@@ -18,7 +18,7 @@ const MonitorControls = ({ isRunning }: MonitorControlsProps) => {
         method: "POST",
       });
       if (!response.ok) throw new Error("Failed to toggle monitor");
-      window.location.reload();
+      window.location.reload(); // not good
     } catch (error) {
       console.error("Error toggling monitor:", error);
     } finally {

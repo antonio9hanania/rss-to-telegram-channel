@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Item } from 'rss-parser';
+import axios from "axios";
+import { Item } from "rss-parser";
 
 const DEFAULT_IMAGE_ID = "894192";
 
@@ -10,21 +10,38 @@ function extractImageUrl(html: string | undefined): string | null {
 }
 
 function extractPlainTextSummary(html: string | undefined): string {
-  if (!html) return '';
-  return html.replace(/<[^>]*>/g, '').trim();
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
 }
 
 function getItemTags(item: Item): string {
   const tags = item.categories || [];
-  const formattedTags = tags.map(tag => 
-    `#${tag.trim().replace(/[^a-zA-Z0-9א-ת\s_-]/g, '').replace(/\s+/g, '_')}`
+  const formattedTags = tags.map(
+    (tag) =>
+      `#${tag
+        .trim()
+        .replace(/[^a-zA-Z0-9א-ת\s_-]/g, "")
+        .replace(/\s+/g, "_")}`
   );
 
-  if (item.link?.includes('breaking-news')) {
-    formattedTags.unshift('#מבזק');
+  if (item.link?.includes("breaking-news")) {
+    formattedTags.unshift("#מבזק");
   }
 
-  return formattedTags.join(' ');
+  return formattedTags.join(" ");
+}
+
+function getInlineKeyboardMarkup(item: Item) {
+  return JSON.stringify({
+    inline_keyboard: [
+      [
+        {
+          text: "לכתבה המלאה",
+          url: item.link,
+        },
+      ],
+    ],
+  });
 }
 
 export async function sendTelegramMessage(item: Item) {
@@ -32,7 +49,7 @@ export async function sendTelegramMessage(item: Item) {
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
   if (!botToken || !chatId) {
-    throw new Error('Telegram bot token or chat ID is not set');
+    throw new Error("Telegram bot token or chat ID is not set");
   }
 
   const apiUrl = `https://api.telegram.org/bot${botToken}/`;
@@ -44,26 +61,28 @@ export async function sendTelegramMessage(item: Item) {
 
   const messageText = `<b>${item.title}</b>
 
-${plainTextSummary}${plainTextSummary ? '\n\n' : ''}${formattedTags}`;
+${plainTextSummary}${plainTextSummary ? "\n\n" : ""}${formattedTags}`;
 
   try {
     if (imageUrl && !imageUrl.includes(DEFAULT_IMAGE_ID)) {
-      await client.post('sendPhoto', {
+      await client.post("sendPhoto", {
         chat_id: chatId,
         photo: imageUrl,
         caption: messageText,
-        parse_mode: 'HTML',
+        parse_mode: "HTML",
+        reply_markup: getInlineKeyboardMarkup(item),
       });
     } else {
-      await client.post('sendMessage', {
+      await client.post("sendMessage", {
         chat_id: chatId,
         text: messageText,
-        parse_mode: 'HTML',
+        parse_mode: "HTML",
+        reply_markup: getInlineKeyboardMarkup(item),
       });
     }
-    console.log('Message sent successfully');
+    console.log("Message sent successfully");
   } catch (error) {
-    console.error('Error sending Telegram message:', error);
+    console.error("Error sending Telegram message:", error);
     throw error;
   }
 }

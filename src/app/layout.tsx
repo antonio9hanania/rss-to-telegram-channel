@@ -2,8 +2,8 @@ import '../styles/globals.scss'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'RSS to Telegram Channel',
-  description: 'Monitor RSS feeds and send updates to Telegram channel',
+  title: 'RSS to Telegram Monitor',
+  description: 'Monitor RSS feeds and send updates to Telegram',
 }
 
 export default function RootLayout({

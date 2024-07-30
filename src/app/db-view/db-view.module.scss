@@ -1,0 +1,70 @@
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.item {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.newItem {
+  animation: slideIn 0.5s ease-out;
+}
+
+.itemId {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.itemDate {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.itemList .item:nth-child(11) {
+  animation: slideOut 0.5s ease-out forwards;
+}

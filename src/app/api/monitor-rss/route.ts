@@ -8,7 +8,7 @@ export async function GET() {
   try {
     if (!monitorStarted) {
       await createTables();
-      startRssMonitor();
+      await startRssMonitor();
       monitorStarted = true;
       return NextResponse.json({ success: true, message: "RSS monitor started successfully" });
     } else {

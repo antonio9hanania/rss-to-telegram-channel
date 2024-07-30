@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Item } from "rss-parser";
 
 const DEFAULT_IMAGE_ID = "894192";
@@ -44,6 +44,27 @@ function getInlineKeyboardMarkup(item: Item) {
   });
 }
 
+function validateMessageText(text: string): string {
+  // Telegram has a limit of 4096 characters for message text
+  if (text.length > 4096) {
+    console.warn("Message text too long, truncating");
+    return text.slice(0, 4093) + "...";
+  }
+  return text;
+}
+
+function validateImageUrl(url: string | null): string | null {
+  if (!url) return null;
+  // Check if the URL is valid
+  try {
+    new URL(url);
+    return url;
+  } catch {
+    console.warn("Invalid image URL:", url);
+    return null;
+  }
+}
+
 export async function sendTelegramMessage(item: Item) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -55,16 +76,20 @@ export async function sendTelegramMessage(item: Item) {
   const apiUrl = `https://api.telegram.org/bot${botToken}/`;
   const client = axios.create({ baseURL: apiUrl });
 
-  const imageUrl = extractImageUrl(item.content);
+  const imageUrl = validateImageUrl(extractImageUrl(item.content));
   const plainTextSummary = extractPlainTextSummary(item.content);
   const formattedTags = getItemTags(item);
 
-  const messageText = `<b>${item.title}</b>
+  const messageText = validateMessageText(`<b>${item.title || ""}</b>
 
-${plainTextSummary}${plainTextSummary ? "\n\n" : ""}${formattedTags}`;
-
+    ${plainTextSummary}${plainTextSummary ? "\n\n" : ""}${formattedTags}`);
   try {
     if (imageUrl && !imageUrl.includes(DEFAULT_IMAGE_ID)) {
+      console.log("Sending message with photo:", {
+        chatId,
+        imageUrl,
+        messageText,
+      });
       await client.post("sendPhoto", {
         chat_id: chatId,
         photo: imageUrl,
@@ -73,6 +98,7 @@ ${plainTextSummary}${plainTextSummary ? "\n\n" : ""}${formattedTags}`;
         reply_markup: getInlineKeyboardMarkup(item),
       });
     } else {
+      console.log("Sending message without photo:", { chatId, messageText });
       await client.post("sendMessage", {
         chat_id: chatId,
         text: messageText,
@@ -82,7 +108,16 @@ ${plainTextSummary}${plainTextSummary ? "\n\n" : ""}${formattedTags}`;
     }
     console.log("Message sent successfully");
   } catch (error) {
-    console.error("Error sending Telegram message:", error);
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      console.error("Axios error sending Telegram message:", {
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        data: axiosError.response?.data,
+      });
+    } else {
+      console.error("Error sending Telegram message:", error);
+    }
     throw error;
   }
 }

@@ -1,8 +1,9 @@
-import styles from './page.module.scss';
-import { getMonitorStatus } from '@/lib/rssMonitor';
-import { getRssFeedStatus } from '@/lib/db';
-import StatusDisplay from '@/components/StatusDisplay';
-import MonitorControls from '@/components/MonitorControls';
+// src/app/page.tsx
+import styles from "./page.module.scss";
+import { getMonitorStatus } from "@/lib/rssMonitor";
+import { getRssFeedStatus } from "@/lib/db";
+import StatusDisplay from "@/components/StatusDisplay";
+import Link from "next/link";
 
 export default async function Home() {
   const monitorStatus = getMonitorStatus();
@@ -10,10 +11,17 @@ export default async function Home() {
 
   return (
     <main className={styles.main}>
-      <div className="container">
+      <div className={styles.container}>
         <h1 className={styles.title}>RSS to Telegram Channel Monitor</h1>
-        <StatusDisplay monitorStatus={monitorStatus} feedStatus={feedStatus} />
-        <MonitorControls isRunning={monitorStatus.isRunning} />
+        <StatusDisplay status={monitorStatus} feedStatus={feedStatus} />
+        <div className={styles.links}>
+          <Link href="/logs" className={styles.link}>
+            View Logs
+          </Link>
+          <Link href="/processed-items" className={styles.link}>
+            View Processed Items
+          </Link>
+        </div>
       </div>
     </main>
   );

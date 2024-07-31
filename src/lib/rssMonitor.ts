@@ -1,7 +1,7 @@
+import axios from "axios";
 import Parser from "rss-parser";
 import { addProcessedItem, isItemProcessed, addLog } from "./db";
 import { sendTelegramMessage } from "./telegram";
-import axios from "axios";
 
 const parser = new Parser();
 
@@ -13,6 +13,7 @@ const RSS_FEEDS = [
   "https://www.maariv.co.il/Rss/RssFeedsAstrology",
 ];
 
+let monitorStatus: "working" | "stopped" = "stopped";
 let monitorInterval: NodeJS.Timeout | null = null;
 let lastCheckTime: Date | null = null;
 
@@ -21,25 +22,18 @@ export function isMonitorRunning(): boolean {
 }
 
 export function getMonitorStatus() {
-  return {
-    isRunning: isMonitorRunning(),
-    lastCheckTime,
-  };
+  return monitorStatus;
 }
 
 async function checkRssFeeds() {
   console.log("Checking RSS feeds");
-  lastCheckTime = new Date();
-
   for (const feedUrl of RSS_FEEDS) {
     try {
       console.log(`Processing feed: ${feedUrl}`);
-      const response = await axios.get(feedUrl, { timeout: 30000 }); // 30 seconds timeout
-
+      const response = await axios.get(feedUrl, { timeout: 60000 }); // Increase timeout to 60 seconds
       const feed = await parser.parseString(response.data);
       for (const item of feed.items.slice(0, 10)) {
         if (item.guid && !(await isItemProcessed(item.guid))) {
-          console.log(`New item found: ${item.title}`);
           await sendTelegramMessage(item);
           await addProcessedItem(
             item.guid,
@@ -59,9 +53,10 @@ async function checkRssFeeds() {
 }
 
 export function startRssMonitor() {
-  if (!monitorInterval) {
+  if (monitorStatus === "stopped") {
+    monitorStatus = "working";
     checkRssFeeds(); // Initial check
-    monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds
+    monitorInterval = setInterval(checkRssFeeds, 300000); // Check every 5 minutes
     console.log("RSS monitor started");
   }
 }
@@ -70,6 +65,9 @@ export function stopRssMonitor() {
   if (monitorInterval) {
     clearInterval(monitorInterval);
     monitorInterval = null;
-    console.log("RSS monitor stopped");
   }
+  monitorStatus = "stopped";
+  console.log("RSS monitor stopped");
 }
+
+startRssMonitor();

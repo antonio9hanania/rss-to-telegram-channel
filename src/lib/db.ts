@@ -13,6 +13,7 @@ export interface ProcessedItem {
 
 async function getClient() {
   if (process.env.NODE_ENV === "production") {
+    console.log("production client");
     return { sql };
   } else {
     return {

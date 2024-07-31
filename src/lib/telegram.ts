@@ -3,9 +3,16 @@ import { Item } from "rss-parser";
 
 const DEFAULT_IMAGE_ID = "894192";
 
+// Extend the Item interface to include custom fields
+interface CustomItem extends Item {
+  Tags?: string;
+  CategoryID?: string;
+  SubCategoryID?: string;
+}
+
 function extractImageUrl(html: string | undefined): string | null {
   if (!html) return null;
-  const match = html.match(/<img[^>]+src="?([^"\s]+)"?\s*\/>/i);
+  const match = html.match(/<img[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/i);
   return match ? match[1] : null;
 }
 
@@ -14,24 +21,35 @@ function extractPlainTextSummary(html: string | undefined): string {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
-function getItemTags(item: Item): string {
-  const tags = item.categories || [];
-  const formattedTags = tags.map(
-    (tag) =>
-      `#${tag
-        .trim()
-        .replace(/[^a-zA-Z0-9א-ת\s_-]/g, "")
-        .replace(/\s+/g, "_")}`
-  );
+function getItemTagsFormat(item: CustomItem): string {
+  console.log("Item received:", JSON.stringify(item, null, 2));
 
-  if (item.link?.includes("breaking-news")) {
-    formattedTags.unshift("#מבזק");
+  let tagsArray: string[] = [];
+
+  // Extract tags from the Tags element
+  if (item.Tags) {
+    tagsArray = item.Tags.split(",")
+      .map((tag) => tag.trim())
+      .map((tag) => tag.replace(/[^a-zA-Z0-9א-ת\s_-]/g, ""))
+      .map((tag) => tag.replace(/\s+/g, "_"))
+      .map((tag) => `#${tag}`);
   }
 
-  return formattedTags.join(" ");
+  // Add breaking news tag if applicable
+  if (item.CategoryID === "1" && item.SubCategoryID === "9") {
+    tagsArray.unshift("#מבזק");
+  }
+
+  // Add breaking news tag if applicable
+  if (item.CategoryID === "1" && item.SubCategoryID === "9") {
+    tagsArray.unshift("#מבזק");
+  }
+
+  console.log("Generated tags:", tagsArray);
+  return tagsArray.join(" ");
 }
 
-function getInlineKeyboardMarkup(item: Item) {
+function getInlineKeyboardMarkup(item: CustomItem) {
   return JSON.stringify({
     inline_keyboard: [
       [
@@ -65,7 +83,7 @@ function validateImageUrl(url: string | null): string | null {
   }
 }
 
-export async function sendTelegramMessage(item: Item) {
+export async function sendTelegramMessage(item: CustomItem) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -78,7 +96,7 @@ export async function sendTelegramMessage(item: Item) {
 
   const imageUrl = validateImageUrl(extractImageUrl(item.content));
   const plainTextSummary = extractPlainTextSummary(item.content);
-  const formattedTags = getItemTags(item);
+  const formattedTags = getItemTagsFormat(item);
 
   const messageText = validateMessageText(`<b>${item.title || ""}</b>
 

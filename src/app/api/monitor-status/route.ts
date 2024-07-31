@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getMonitorStatus } from '@/lib/rssMonitor';
+import { NextResponse } from "next/server";
+import { getMonitorStatus } from "@/lib/rssMonitor";
 
 export async function GET() {
   const status = getMonitorStatus();

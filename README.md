@@ -75,6 +75,7 @@ rss-to-telegram-channel
 │  │  ├─ StatusDisplay.module.scss
 │  │  └─ StatusDisplay.tsx
 │  ├─ lib
+│  │  ├─ customParser.ts
 │  │  ├─ db.ts
 │  │  ├─ rssMonitor.ts
 │  │  └─ telegram.ts

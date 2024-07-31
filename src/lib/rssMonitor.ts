@@ -36,7 +36,7 @@ async function checkRssFeeds() {
       console.log(`Processing feed: ${feedUrl}`);
       const response = await axios.get(feedUrl, { timeout: 30000 }); // 30 seconds timeout
 
-      const feed = await parser.parseURL(feedUrl);
+      const feed = await parser.parseString(response.data);
       for (const item of feed.items.slice(0, 10)) {
         if (item.guid && !(await isItemProcessed(item.guid))) {
           console.log(`New item found: ${item.title}`);

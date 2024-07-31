@@ -1,15 +1,16 @@
-import Parser from 'rss-parser';
-import { addProcessedItem, isItemProcessed, addLog } from './db';
-import { sendTelegramMessage } from './telegram';
+import Parser from "rss-parser";
+import { addProcessedItem, isItemProcessed, addLog } from "./db";
+import { sendTelegramMessage } from "./telegram";
+import axios from "axios";
 
 const parser = new Parser();
 
 const RSS_FEEDS = [
-  'https://www.maariv.co.il/Rss/RssChadashot',
-  'https://www.maariv.co.il/Rss/RssFeedsMivzakiChadashot',
-  'https://www.maariv.co.il/Rss/RssFeedsTarbot',
-  'https://www.maariv.co.il/Rss/RssFeedsAsakim',
-  'https://www.maariv.co.il/Rss/RssFeedsAstrology'
+  "https://www.maariv.co.il/Rss/RssChadashot",
+  "https://www.maariv.co.il/Rss/RssFeedsMivzakiChadashot",
+  "https://www.maariv.co.il/Rss/RssFeedsTarbot",
+  "https://www.maariv.co.il/Rss/RssFeedsAsakim",
+  "https://www.maariv.co.il/Rss/RssFeedsAstrology",
 ];
 
 let monitorInterval: NodeJS.Timeout | null = null;
@@ -27,23 +28,32 @@ export function getMonitorStatus() {
 }
 
 async function checkRssFeeds() {
-  console.log('Checking RSS feeds');
+  console.log("Checking RSS feeds");
   lastCheckTime = new Date();
 
   for (const feedUrl of RSS_FEEDS) {
     try {
       console.log(`Processing feed: ${feedUrl}`);
+      const response = await axios.get(feedUrl, { timeout: 30000 }); // 30 seconds timeout
+
       const feed = await parser.parseURL(feedUrl);
       for (const item of feed.items.slice(0, 10)) {
         if (item.guid && !(await isItemProcessed(item.guid))) {
           console.log(`New item found: ${item.title}`);
           await sendTelegramMessage(item);
-          await addProcessedItem(item.guid, new Date(item.pubDate || item.isoDate || Date.now()));
+          await addProcessedItem(
+            item.guid,
+            new Date(item.pubDate || item.isoDate || Date.now())
+          );
         }
       }
     } catch (error) {
       console.error(`Error processing feed ${feedUrl}:`, error);
-      await addLog(`Error processing feed ${feedUrl}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      await addLog(
+        `Error processing feed ${feedUrl}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 }
@@ -52,7 +62,7 @@ export function startRssMonitor() {
   if (!monitorInterval) {
     checkRssFeeds(); // Initial check
     monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds
-    console.log('RSS monitor started');
+    console.log("RSS monitor started");
   }
 }
 
@@ -60,6 +70,6 @@ export function stopRssMonitor() {
   if (monitorInterval) {
     clearInterval(monitorInterval);
     monitorInterval = null;
-    console.log('RSS monitor stopped');
+    console.log("RSS monitor stopped");
   }
 }

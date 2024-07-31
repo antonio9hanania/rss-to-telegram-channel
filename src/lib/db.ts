@@ -1,6 +1,5 @@
-import { Pool } from 'pg';
-import { sql as vercelSql } from '@vercel/postgres';
-import { sql } from '@vercel/postgres';
+import { Pool } from "pg";
+import { sql } from "@vercel/postgres";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -13,14 +12,17 @@ export interface ProcessedItem {
 }
 
 async function getClient() {
-  if (process.env.NODE_ENV === 'production') {
-    return { sql: vercelSql };
+  if (process.env.NODE_ENV === "production") {
+    return { sql };
   } else {
     return {
       sql: (strings: TemplateStringsArray, ...values: any[]) => {
-        const query = strings.reduce((acc, str, i) => acc + str + (i < values.length ? `$${i + 1}` : ''), '');
+        const query = strings.reduce(
+          (acc, str, i) => acc + str + (i < values.length ? `$${i + 1}` : ""),
+          ""
+        );
         return pool.query(query, values);
-      }
+      },
     };
   }
 }
@@ -92,13 +94,15 @@ export async function addProcessedItem(itemId: string, publishedAt: Date) {
       ON CONFLICT (item_id) DO NOTHING
       RETURNING *;
     `;
-    console.log('Item added to processed_items:', result.rows[0]);
+    console.log("Item added to processed_items:", result.rows[0]);
   } catch (error) {
-    console.error('Error adding processed item:', error);
+    console.error("Error adding processed item:", error);
   }
 }
 
-export async function getProcessedItems(limit: number = 10): Promise<ProcessedItem[]> {
+export async function getProcessedItems(
+  limit: number = 10
+): Promise<ProcessedItem[]> {
   const client = await getClient();
 
   const result = await client.sql`
@@ -124,10 +128,10 @@ export async function checkDatabaseConnection() {
   const client = await getClient();
   try {
     const result = await client.sql`SELECT NOW()`;
-    console.log('Database connection successful:', result.rows[0]);
+    console.log("Database connection successful:", result.rows[0]);
     return true;
   } catch (error) {
-    console.error('Database connection failed:', error);
+    console.error("Database connection failed:", error);
     return false;
   }
 }

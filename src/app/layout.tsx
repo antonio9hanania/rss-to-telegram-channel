@@ -1,21 +1,32 @@
-import '../styles/globals.scss'
-import { Inter } from 'next/font/google'
+import "../styles/globals.scss";
+import { Inter } from "next/font/google";
+import { useEffect } from "react";
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata = {
-  title: 'RSS to Telegram Monitor',
-  description: 'Monitor RSS feeds and send updates to Telegram',
-}
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error("Unhandled Rejection:", event.reason);
+    };
+
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection
+      );
+    };
+  }, []);
+
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
-  )
+  );
 }

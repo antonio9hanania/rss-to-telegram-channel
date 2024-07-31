@@ -2,6 +2,7 @@ import Parser from "rss-parser";
 
 // Define the CustomItem interface
 export interface CustomItem extends Parser.Item {
+  guid: string; // Make guid required
   Tags?: string;
   CategoryID?: string;
   SubCategoryID?: string;

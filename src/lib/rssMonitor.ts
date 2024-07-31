@@ -77,6 +77,7 @@ export function startRssMonitor() {
   if (monitorStatus === "stopped") {
     monitorStatus = "working";
     monitorStartTime = new Date();
+    //monitorStartTime.setHours(monitorStartTime.getHours() - 4);
     lastCheckTime = monitorStartTime;
     checkRssFeeds(); // Initial check
     monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds
@@ -113,6 +114,10 @@ async function processQueuedMessages() {
   ) {
     const item = messageQueue.shift()!;
     await sendTelegramMessage(item);
+    await addProcessedItem(
+      item.guid,
+      new Date(item.pubDate || item.isoDate || Date.now())
+    );
     lastMessageTime = Date.now();
   }
 }

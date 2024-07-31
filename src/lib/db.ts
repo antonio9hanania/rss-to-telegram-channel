@@ -38,7 +38,8 @@ export interface RssFeedStatus {
 }
 
 export async function getRssFeedStatus(): Promise<RssFeedStatus> {
-  const result = await sql`
+  const client = await getClient();
+  const result = await client.sql`
     SELECT 
       (SELECT COUNT(*) FROM processed_items) as items_processed,
       (SELECT COUNT(*) FROM logs WHERE message LIKE 'Error%') as errors

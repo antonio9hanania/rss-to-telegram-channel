@@ -1,9 +1,10 @@
 import axios from "axios";
-import Parser from "rss-parser";
+import { customParser, CustomItem } from "./customParser";
+
 import { addProcessedItem, isItemProcessed, addLog } from "./db";
 import { sendTelegramMessage } from "./telegram";
 
-const parser = new Parser();
+//const parser = new Parser();
 
 const RSS_FEEDS = [
   "https://www.maariv.co.il/Rss/RssChadashot",
@@ -18,7 +19,7 @@ const MAX_QUEUE_SIZE = 250;
 
 let monitorStatus: "working" | "stopped" = "stopped";
 let monitorInterval: NodeJS.Timeout | null = null;
-let messageQueue: Parser.Item[] = [];
+let messageQueue: CustomItem[] = [];
 let lastMessageTime = 0;
 let monitorStartTime: Date | null = null;
 let lastCheckTime: Date | null = null;
@@ -41,7 +42,7 @@ async function checkRssFeeds() {
     try {
       console.log(`Processing feed: ${feedUrl}`);
       const response = await axios.get(feedUrl, { timeout: 60000 });
-      const feed = await parser.parseString(response.data);
+      const feed = await customParser.parseString(response.data);
       for (const item of feed.items.slice(0, 10)) {
         if (
           item.guid &&
@@ -95,7 +96,7 @@ export function stopRssMonitor() {
   console.log("RSS monitor stopped");
 }
 
-function isNewlyPublishedItem(item: Parser.Item): boolean {
+function isNewlyPublishedItem(item: CustomItem): boolean {
   if (!monitorStartTime || !lastCheckTime) return false;
   const publishDate = new Date(item.pubDate || item.isoDate || Date.now());
   const modifiedDate = new Date(item.isoDate || item.pubDate || Date.now());

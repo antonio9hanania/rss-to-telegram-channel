@@ -1,14 +1,7 @@
 import axios, { AxiosError } from "axios";
-import { Item } from "rss-parser";
+import { CustomItem } from "./customParser";
 
 const DEFAULT_IMAGE_ID = "894192";
-
-// Extend the Item interface to include custom fields
-interface CustomItem extends Item {
-  Tags?: string;
-  CategoryID?: string;
-  SubCategoryID?: string;
-}
 
 function extractImageUrl(html: string | undefined): string | null {
   if (!html) return null;

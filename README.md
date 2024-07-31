@@ -63,8 +63,11 @@ rss-to-telegram-channel
 │  │  ├─ logs
 │  │  │  └─ page.tsx
 │  │  ├─ page.module.scss
-│  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ processed-items
+│  │     └─ page.tsx
 │  ├─ components
+│  │  ├─ ErrorBoundary.tsx
 │  │  ├─ LogList.module.scss
 │  │  ├─ LogList.tsx
 │  │  ├─ MonitorControls.module.scss

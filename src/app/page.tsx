@@ -13,7 +13,7 @@ export default async function Home() {
     <main className={styles.main}>
       <div className={styles.container}>
         <h1 className={styles.title}>RSS to Telegram Channel Monitor</h1>
-        <StatusDisplay status={monitorStatus} feedStatus={feedStatus} />
+        <StatusDisplay monitorStatus={monitorStatus} feedStatus={feedStatus} />
         <div className={styles.links}>
           <Link href="/logs" className={styles.link}>
             View Logs

@@ -3,12 +3,15 @@ import styles from "./StatusDisplay.module.scss";
 import { RssFeedStatus } from "@/lib/db";
 
 interface StatusDisplayProps {
-  status: "working" | "stopped";
+  monitorStatus: {
+    status: "working" | "stopped";
+    lastCheckTime: Date | null;
+  };
   feedStatus: RssFeedStatus;
 }
 
 export default function StatusDisplay({
-  status,
+  monitorStatus,
   feedStatus,
 }: StatusDisplayProps) {
   return (
@@ -16,10 +19,18 @@ export default function StatusDisplay({
       <p className={styles.status}>
         Status:{" "}
         <span
-          className={status === "working" ? styles.working : styles.stopped}
+          className={
+            monitorStatus.status === "working" ? styles.working : styles.stopped
+          }
         >
-          {status}
+          {monitorStatus.status}
         </span>
+      </p>
+      <p>
+        Last Check:{" "}
+        {monitorStatus.lastCheckTime
+          ? monitorStatus.lastCheckTime.toLocaleString()
+          : "Never"}
       </p>
       <p>Items Processed: {feedStatus.itemsProcessed}</p>
       <p>Errors: {feedStatus.errors}</p>

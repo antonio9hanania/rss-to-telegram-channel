@@ -76,8 +76,16 @@ async function checkRssFeeds() {
         ) {
           console.log(`New item found: ${item.title}`);
           if (messageQueue.length < MAX_QUEUE_SIZE) {
-            messageQueue.push(item);
-            console.log(`Added item to queue: ${item.title}`);
+            const isInQueue = messageQueue.some(
+              (queuedItem) => queuedItem.guid === item.guid
+            );
+            if (!isInQueue) {
+              messageQueue.push(item);
+              console.log(`Added item to queue: ${item.title}`);
+              console.log("New queue size:", messageQueue.length);
+            } else {
+              console.log(`Item already in queue, skipping: ${item.title}`);
+            }
           } else {
             console.log(`Queue full, skipping item: ${item.title}`);
             await addLog(

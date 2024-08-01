@@ -34,7 +34,7 @@ function getItemTagsFormat(item: CustomItem): string {
   }
 
   // Add breaking news tag if applicable
-  if (item.CategoryID === "1" && item.SubCategoryID === "9") {
+  if (item.link?.toString().includes("breaking-news")) {
     tagsArray.unshift("#מבזק");
   }
 

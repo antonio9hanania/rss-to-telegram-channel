@@ -153,7 +153,7 @@ async function processQueuedMessages() {
 
 function convertGMTToIsraelTime(dateInput: string | number | Date): Date {
   const gmtDate = new Date(dateInput);
-  const israelTimeString = gmtDate.toLocaleString("en-US", {
+  const israelTimeString = gmtDate.toLocaleString("he-IL", {
     timeZone: "Asia/Jerusalem",
     hour12: false,
   });

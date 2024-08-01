@@ -108,8 +108,17 @@ async function checkRssFeeds() {
 
 function isNewlyPublishedItem(item: CustomItem): boolean {
   if (!monitorStartTime || !lastCheckTime) return false;
-  const publishDate = new Date(item.pubDate || item.isoDate || Date.now());
-  const modifiedDate = new Date(item.isoDate || item.pubDate || Date.now());
+
+  const publishDate = convertGMTToIsraelTime(
+    item.pubDate || item.isoDate || new Date().toUTCString()
+  );
+  const modifiedDate = convertGMTToIsraelTime(
+    item.isoDate || item.pubDate || new Date().toUTCString()
+  );
+  const startTime = convertGMTToIsraelTime(
+    new Date(monitorStartTime).toUTCString()
+  );
+
   return publishDate >= modifiedDate && publishDate >= monitorStartTime;
 }
 async function processQueuedMessages() {
@@ -136,10 +145,20 @@ async function processQueuedMessages() {
     await sendTelegramMessage(item);
     await addProcessedItem(
       item.guid,
-      new Date(item.pubDate || item.isoDate || Date.now())
+      convertGMTToIsraelTime(
+        item.pubDate || item.isoDate || new Date().toUTCString()
+      )
     );
     lastMessageTime = Date.now();
   }
 }
 
+function convertGMTToIsraelTime(dateString: string): Date {
+  const gmtDate = new Date(dateString);
+  const israelTimeString = gmtDate.toLocaleString("en-US", {
+    timeZone: "Asia/Jerusalem",
+    hour12: false,
+  });
+  return new Date(israelTimeString);
+}
 startRssMonitor();

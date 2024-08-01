@@ -1,5 +1,5 @@
 // src/app/page.tsx
-import styles from "./page.module.scss";
+import styles from "@/styles/Home.module.scss";
 import { getMonitorStatus } from "@/lib/rssMonitor";
 import { getRssFeedStatus } from "@/lib/db";
 import StatusDisplay from "@/components/StatusDisplay";

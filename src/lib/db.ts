@@ -88,8 +88,9 @@ export async function addLog(message: string) {
 }
 
 export async function addProcessedItem(itemId: string, publishedAt: Date) {
-  const client = await getClient();
   try {
+    const client = await getClient();
+
     const result = await client.sql`
       INSERT INTO processed_items (item_id, published_at, processed_at)
       VALUES (${itemId}, ${publishedAt.toISOString()}, CURRENT_TIMESTAMP)
@@ -103,7 +104,7 @@ export async function addProcessedItem(itemId: string, publishedAt: Date) {
 }
 
 export async function getProcessedItems(
-  limit: number = 10
+  limit: number = 50
 ): Promise<ProcessedItem[]> {
   const client = await getClient();
 

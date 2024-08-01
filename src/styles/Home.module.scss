@@ -1,5 +1,5 @@
-@import 'variables';
-@import 'mixins';
+@import "variables";
+@import "mixins";
 
 .main {
   display: flex;
@@ -14,6 +14,13 @@
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: $primary-color;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .link {

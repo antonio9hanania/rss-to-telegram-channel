@@ -16,6 +16,7 @@ const RSS_FEEDS = [
 
 const TELEGRAM_RATE_LIMIT = 15000; // 15 seconds
 const MAX_QUEUE_SIZE = 250;
+const RSS_CHECK_INTERVAL = 5000;
 
 let monitorStatus: "working" | "stopped" = "stopped";
 let monitorInterval: NodeJS.Timeout | null = null;
@@ -23,6 +24,30 @@ let messageQueue: CustomItem[] = [];
 let lastMessageTime = 0;
 let monitorStartTime: Date | null = null;
 let lastCheckTime: Date | null = null;
+
+export function startRssMonitor() {
+  if (monitorStatus === "stopped") {
+    monitorStatus = "working";
+    monitorStartTime = new Date();
+    //monitorStartTime.setHours(monitorStartTime.getHours() - 4);
+    lastCheckTime = monitorStartTime;
+    checkRssFeeds(); // Initial check
+    monitorInterval = setInterval(checkRssFeeds, RSS_CHECK_INTERVAL); // Check every 5 seconds
+    setInterval(processQueuedMessages, TELEGRAM_RATE_LIMIT); // Process queue every 15 seconds
+    console.log("RSS monitor started");
+  }
+}
+
+export function stopRssMonitor() {
+  if (monitorInterval) {
+    clearInterval(monitorInterval);
+    monitorInterval = null;
+  }
+  monitorStatus = "stopped";
+  monitorStartTime = null;
+  lastCheckTime = null;
+  console.log("RSS monitor stopped");
+}
 
 export function isMonitorRunning(): boolean {
   return monitorInterval !== null;
@@ -73,45 +98,32 @@ async function checkRssFeeds() {
   lastCheckTime = currentCheckTime;
 }
 
-export function startRssMonitor() {
-  if (monitorStatus === "stopped") {
-    monitorStatus = "working";
-    monitorStartTime = new Date();
-    //monitorStartTime.setHours(monitorStartTime.getHours() - 4);
-    lastCheckTime = monitorStartTime;
-    checkRssFeeds(); // Initial check
-    monitorInterval = setInterval(checkRssFeeds, 5000); // Check every 5 seconds
-    setInterval(processQueuedMessages, TELEGRAM_RATE_LIMIT); // Process queue every 15 seconds
-    console.log("RSS monitor started");
-  }
-}
-
-export function stopRssMonitor() {
-  if (monitorInterval) {
-    clearInterval(monitorInterval);
-    monitorInterval = null;
-  }
-  monitorStatus = "stopped";
-  monitorStartTime = null;
-  lastCheckTime = null;
-  console.log("RSS monitor stopped");
-}
-
 function isNewlyPublishedItem(item: CustomItem): boolean {
   if (!monitorStartTime || !lastCheckTime) return false;
   const publishDate = new Date(item.pubDate || item.isoDate || Date.now());
   const modifiedDate = new Date(item.isoDate || item.pubDate || Date.now());
-  return (
-    publishDate >= modifiedDate &&
-    publishDate > lastCheckTime &&
-    publishDate >= monitorStartTime
-  );
+  return publishDate >= modifiedDate && publishDate >= monitorStartTime;
 }
 async function processQueuedMessages() {
   if (
     messageQueue.length > 0 &&
     Date.now() - lastMessageTime >= TELEGRAM_RATE_LIMIT
   ) {
+    // Remove duplicates from the queue
+    const uniqueQueue = messageQueue.filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t.guid === item.guid)
+    );
+
+    if (uniqueQueue.length < messageQueue.length) {
+      console.log(
+        `Removed ${
+          messageQueue.length - uniqueQueue.length
+        } duplicate items from the queue`
+      );
+      messageQueue.length = 0;
+      messageQueue.push(...uniqueQueue);
+    }
     const item = messageQueue.shift()!;
     await sendTelegramMessage(item);
     await addProcessedItem(

@@ -28,7 +28,7 @@ let lastCheckTime: Date | null = null;
 export function startRssMonitor() {
   if (monitorStatus === "stopped") {
     monitorStatus = "working";
-    monitorStartTime = new Date();
+    monitorStartTime = convertGMTToIsraelTime(new Date());
     //monitorStartTime.setHours(monitorStartTime.getHours() - 4);
     lastCheckTime = monitorStartTime;
     checkRssFeeds(); // Initial check
@@ -62,7 +62,7 @@ export function getMonitorStatus() {
 
 async function checkRssFeeds() {
   console.log("Checking RSS feeds");
-  const currentCheckTime = new Date();
+  const currentCheckTime = convertGMTToIsraelTime(new Date());
   for (const feedUrl of RSS_FEEDS) {
     try {
       console.log(`Processing feed: ${feedUrl}`);
@@ -110,14 +110,12 @@ function isNewlyPublishedItem(item: CustomItem): boolean {
   if (!monitorStartTime || !lastCheckTime) return false;
 
   const publishDate = convertGMTToIsraelTime(
-    item.pubDate || item.isoDate || new Date().toUTCString()
+    item.pubDate || item.isoDate || Date.now()
   );
   const modifiedDate = convertGMTToIsraelTime(
-    item.isoDate || item.pubDate || new Date().toUTCString()
+    item.isoDate || item.pubDate || Date.now()
   );
-  const startTime = convertGMTToIsraelTime(
-    new Date(monitorStartTime).toUTCString()
-  );
+  const startTime = convertGMTToIsraelTime(monitorStartTime);
 
   return publishDate >= modifiedDate && publishDate >= monitorStartTime;
 }
@@ -149,16 +147,17 @@ async function processQueuedMessages() {
         item.pubDate || item.isoDate || new Date().toUTCString()
       )
     );
-    lastMessageTime = Date.now();
+    lastMessageTime = convertGMTToIsraelTime(Date.now()).getTime();
   }
 }
 
-function convertGMTToIsraelTime(dateString: string): Date {
-  const gmtDate = new Date(dateString);
+function convertGMTToIsraelTime(dateInput: string | number | Date): Date {
+  const gmtDate = new Date(dateInput);
   const israelTimeString = gmtDate.toLocaleString("en-US", {
     timeZone: "Asia/Jerusalem",
     hour12: false,
   });
   return new Date(israelTimeString);
 }
+
 startRssMonitor();

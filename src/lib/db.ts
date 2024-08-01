@@ -39,6 +39,10 @@ export interface RssFeedStatus {
 }
 
 export async function getRssFeedStatus(): Promise<RssFeedStatus> {
+  console.log("Getting RSS feed status...");
+  console.log("NODE_ENV:", process.env.NODE_ENV);
+  console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
+
   const client = await getClient();
   const result = await client.sql`
     SELECT 

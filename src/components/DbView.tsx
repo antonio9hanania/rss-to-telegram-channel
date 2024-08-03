@@ -4,8 +4,8 @@ import styles from "./DbView.module.scss";
 
 interface ProcessedItem {
   item_id: string;
-  published_at: Date;
-  processed_at: Date;
+  published_at: string;
+  processed_at: string;
 }
 
 interface DbViewProps {
@@ -27,16 +27,8 @@ export default function DbView({ items }: DbViewProps) {
           {items.map((item) => (
             <tr key={item.item_id}>
               <td>{item.item_id}</td>
-              <td>
-                {item.published_at.toLocaleString("he-IL", {
-                  timeZone: "Asia/Jerusalem",
-                })}
-              </td>
-              <td>
-                {item.processed_at.toLocaleString("he-IL", {
-                  timeZone: "Asia/Jerusalem",
-                })}
-              </td>
+              <td>{item.published_at}</td>
+              <td>{item.processed_at}</td>
             </tr>
           ))}
         </tbody>

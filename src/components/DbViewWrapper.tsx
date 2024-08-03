@@ -1,5 +1,5 @@
 import { getProcessedItems } from "@/lib/db";
-import { convertToIsraelTime } from "@/lib/rssMonitor";
+import { convertToIsraelTime } from "@/lib/utils";
 import DbView from "./DbView";
 
 export const revalidate = 30; // Revalidate every 30 seconds

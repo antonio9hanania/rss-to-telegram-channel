@@ -1,4 +1,6 @@
-import { getMonitorStatus, convertToIsraelTime } from "@/lib/rssMonitor";
+import { getMonitorStatus } from "@/lib/rssMonitor";
+import { formatIsraelTime } from "@/lib/utils";
+
 import { getRssFeedStatus } from "@/lib/db";
 import StatusDisplay from "./StatusDisplay";
 
@@ -11,7 +13,7 @@ export default async function StatusDisplayWrapper() {
   const formattedStatus = {
     ...monitorStatus,
     lastCheckTime: monitorStatus.lastCheckTime
-      ? convertToIsraelTime(monitorStatus.lastCheckTime).toString()
+      ? formatIsraelTime(monitorStatus.lastCheckTime)
       : "",
   };
 

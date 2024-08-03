@@ -1,4 +1,5 @@
-// src/components/StatusDisplay.tsx
+"use client";
+
 import styles from "./StatusDisplay.module.scss";
 import { MonitorStatus, FeedStatus } from "@/types/monitor";
 
@@ -26,7 +27,7 @@ export default function StatusDisplay({
       <p>
         Last Check:{" "}
         {monitorStatus.lastCheckTime
-          ? monitorStatus.lastCheckTime.toLocaleString()
+          ? new Date(monitorStatus.lastCheckTime).toLocaleString()
           : "Never"}
       </p>
       <p>Items Processed: {feedStatus.itemsProcessed}</p>

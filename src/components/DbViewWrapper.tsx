@@ -1,9 +1,12 @@
-// src/components/DbViewWrapper.tsx
 import { getProcessedItems } from "@/lib/db";
 import DbView from "./DbView";
 
 export default async function DbViewWrapper() {
-  const processedItems = await getProcessedItems();
+  const items = await getProcessedItems();
 
-  return <DbView initialProcessedItems={processedItems} />;
+  if (!items) {
+    throw new Error("Failed to fetch items");
+  }
+
+  return <DbView items={items} />;
 }

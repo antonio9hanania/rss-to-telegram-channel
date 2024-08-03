@@ -1,21 +1,16 @@
+import { Suspense } from "react";
 import styles from "@/styles/Home.module.scss";
 import Link from "next/link";
-import { getMonitorStatus } from "@/lib/rssMonitor";
-import { getRssFeedStatus } from "@/lib/db";
 import StatusDisplayWrapper from "@/components/StatusDisplayWrapper";
 
-export default async function Home() {
-  const initialMonitorStatus = getMonitorStatus();
-  const initialFeedStatus = await getRssFeedStatus();
-
+export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
         <h1 className={styles.title}>RSS to Telegram Channel Monitor</h1>
-        <StatusDisplayWrapper
-          initialMonitorStatus={initialMonitorStatus}
-          initialFeedStatus={initialFeedStatus}
-        />
+        <Suspense fallback={<div>Loading status...</div>}>
+          <StatusDisplayWrapper />
+        </Suspense>
         <div className={styles.links}>
           <Link href="/logs" className={styles.link}>
             View Logs

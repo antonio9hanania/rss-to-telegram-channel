@@ -1,31 +1,13 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import StatusDisplay from "./StatusDisplay";
 import { getMonitorStatus } from "@/lib/rssMonitor";
-import { MonitorStatus, FeedStatus } from "@/types/monitor";
+import { getRssFeedStatus } from "@/lib/db";
+import StatusDisplay from "./StatusDisplay";
 
-interface StatusDisplayWrapperProps {
-  initialMonitorStatus: MonitorStatus;
-  initialFeedStatus: FeedStatus;
-}
+// This will cause the component to be re-rendered every 5 seconds on the server
+export const revalidate = 5;
 
-export default function StatusDisplayWrapper({
-  initialMonitorStatus,
-  initialFeedStatus,
-}: StatusDisplayWrapperProps) {
-  const [monitorStatus, setMonitorStatus] =
-    useState<MonitorStatus>(initialMonitorStatus);
-  const [feedStatus, setFeedStatus] = useState<FeedStatus>(initialFeedStatus);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentMonitorStatus = getMonitorStatus();
-      setMonitorStatus(currentMonitorStatus);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+export default async function StatusDisplayWrapper() {
+  const monitorStatus = getMonitorStatus();
+  const feedStatus = await getRssFeedStatus();
 
   return (
     <StatusDisplay monitorStatus={monitorStatus} feedStatus={feedStatus} />

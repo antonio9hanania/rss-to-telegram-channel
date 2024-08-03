@@ -1,17 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ProcessedItem } from "@/types/db";
 import styles from "./DbView.module.scss";
 
-interface DbViewProps {
-  initialProcessedItems: ProcessedItem[];
+interface ProcessedItem {
+  item_id: string;
+  published_at: string;
+  processed_at: string;
 }
 
-export default function DbView({ initialProcessedItems }: DbViewProps) {
-  const [processedItems, setProcessedItems] = useState<ProcessedItem[]>(
-    initialProcessedItems
-  );
+interface DbViewProps {
+  items: ProcessedItem[];
+}
+
+export default function DbView({ items }: DbViewProps) {
+  const [processedItems, setProcessedItems] = useState(items);
+
+  useEffect(() => {
+    setProcessedItems(items);
+  }, [items]);
 
   return (
     <div className="container">

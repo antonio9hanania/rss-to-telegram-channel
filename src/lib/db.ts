@@ -1,14 +1,32 @@
 import { Pool } from "pg";
 import { sql } from "@vercel/postgres";
+import { ProcessedItem } from "@/types/db";
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+let pool: Pool;
 
-export interface ProcessedItem {
-  item_id: string;
-  published_at: string;
-  processed_at: string;
+if (process.env.NODE_ENV !== "production") {
+  pool = new Pool({
+    connectionString: getConnectionString(),
+  });
+}
+
+export interface Log {
+  message: string;
+  created_at: string;
+}
+
+export interface RssFeedStatus {
+  itemsProcessed: number;
+  errors: number;
+}
+
+function getConnectionString() {
+  console.log(`process.env.NODE_ENV ${process.env.NODE_ENV}`);
+  if (process.env.NODE_ENV === "production") {
+    return process.env.PROD_DATABASE_URL || process.env.POSTGRES_URL;
+  } else {
+    return process.env.DEV_DATABASE_URL || process.env.DATABASE_URL;
+  }
 }
 
 async function getClient() {
@@ -26,16 +44,6 @@ async function getClient() {
       },
     };
   }
-}
-
-export interface Log {
-  message: string;
-  created_at: string;
-}
-
-export interface RssFeedStatus {
-  itemsProcessed: number;
-  errors: number;
 }
 
 export async function getRssFeedStatus(): Promise<RssFeedStatus> {
@@ -122,6 +130,7 @@ export async function getProcessedItems(
 }
 
 export async function isItemProcessed(itemId: string): Promise<boolean> {
+  console.log(`start isItemProcessed function start for item ${itemId}`);
   const client = await getClient();
   const result = await client.sql`
     SELECT COUNT(*) as count FROM processed_items WHERE item_id = ${itemId}
@@ -129,16 +138,4 @@ export async function isItemProcessed(itemId: string): Promise<boolean> {
   const isProcessed = result.rows[0].count > 0;
   console.log(`Checking if item ${itemId} is processed: ${isProcessed}`);
   return isProcessed;
-}
-
-export async function checkDatabaseConnection() {
-  const client = await getClient();
-  try {
-    const result = await client.sql`SELECT NOW()`;
-    console.log("Database connection successful:", result.rows[0]);
-    return true;
-  } catch (error) {
-    console.error("Database connection failed:", error);
-    return false;
-  }
 }

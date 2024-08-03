@@ -1,0 +1,30 @@
+// src/components/DbView.module.scss
+.title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.newItem {
+  background-color: #e6f7ff;
+}
+
+.itemId {
+  font-weight: bold;
+}
+
+.itemDate {
+  font-size: 14px;
+  color: #666;
+}

@@ -1,13 +1,10 @@
 // src/components/StatusDisplay.tsx
 import styles from "./StatusDisplay.module.scss";
-import { RssFeedStatus } from "@/lib/db";
+import { MonitorStatus, FeedStatus } from "@/types/monitor";
 
 interface StatusDisplayProps {
-  monitorStatus: {
-    status: "working" | "stopped";
-    lastCheckTime: Date | null;
-  };
-  feedStatus: RssFeedStatus;
+  monitorStatus: MonitorStatus;
+  feedStatus: FeedStatus;
 }
 
 export default function StatusDisplay({

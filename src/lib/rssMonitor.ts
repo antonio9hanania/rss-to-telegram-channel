@@ -1,8 +1,9 @@
 import axios from "axios";
-import { customParser, CustomItem } from "./customParser";
+import { customParser, postProcessItems, CustomItem } from "./customParser";
 
 import { addProcessedItem, isItemProcessed, addLog } from "./db";
 import { sendTelegramMessage } from "./telegram";
+import { json } from "stream/consumers";
 
 //const parser = new Parser();
 
@@ -28,7 +29,7 @@ let lastCheckTime: Date | null = null;
 export function startRssMonitor() {
   if (monitorStatus === "stopped") {
     monitorStatus = "working";
-    monitorStartTime = convertGMTToIsraelTime(new Date());
+    monitorStartTime = convertToIsraelTime(new Date());
     //monitorStartTime.setHours(monitorStartTime.getHours() - 4);
     lastCheckTime = monitorStartTime;
     checkRssFeeds(); // Initial check
@@ -62,13 +63,15 @@ export function getMonitorStatus() {
 
 async function checkRssFeeds() {
   console.log("Checking RSS feeds");
-  const currentCheckTime = convertGMTToIsraelTime(new Date());
+  const currentCheckTime = convertToIsraelTime(new Date());
   for (const feedUrl of RSS_FEEDS) {
     try {
       console.log(`Processing feed: ${feedUrl}`);
       const response = await axios.get(feedUrl, { timeout: 60000 });
       const feed = await customParser.parseString(response.data);
-      for (const item of feed.items.slice(0, 10)) {
+      const processedItems = postProcessItems(feed.items);
+
+      for (const item of processedItems.slice(0, 10)) {
         if (
           item.guid &&
           isNewlyPublishedItem(item) &&
@@ -104,25 +107,37 @@ async function checkRssFeeds() {
     }
   }
   lastCheckTime = currentCheckTime;
+  console.log(`lastCheckTime: ${lastCheckTime.toString()}`);
 }
 
 function isNewlyPublishedItem(item: CustomItem): boolean {
   if (!monitorStartTime || !lastCheckTime) return false;
 
-  const publishDate = convertGMTToIsraelTime(
-    item.pubDate || item.isoDate || Date.now()
+  const publishDate = convertToIsraelTime(new Date(item.pubDate || Date.now()));
+  const modifiedDate = convertToIsraelTime(
+    new Date(item.UpdateDate || Date.now())
   );
-  const modifiedDate = convertGMTToIsraelTime(
-    item.isoDate || item.pubDate || Date.now()
+  const startTime = convertToIsraelTime(monitorStartTime);
+
+  console.log(`item url ${item.link}:
+    published at ${item.pubDate}, israel time: ${publishDate},
+    modifiedDate at ${item.pubDate}, israel time: ${modifiedDate},
+    monitor startTime at ${monitorStartTime}, israel time: ${startTime}`);
+
+  console.log(
+    `is newly published ? ${
+      publishDate >= modifiedDate && publishDate >= startTime
+    }`
   );
-  const startTime = convertGMTToIsraelTime(monitorStartTime);
 
   return publishDate >= modifiedDate && publishDate >= monitorStartTime;
 }
 async function processQueuedMessages() {
+  const currentTime = convertToIsraelTime(new Date()).getTime();
+
   if (
     messageQueue.length > 0 &&
-    Date.now() - lastMessageTime >= TELEGRAM_RATE_LIMIT
+    currentTime - lastMessageTime >= TELEGRAM_RATE_LIMIT
   ) {
     // Remove duplicates from the queue
     const uniqueQueue = messageQueue.filter(
@@ -143,21 +158,25 @@ async function processQueuedMessages() {
     await sendTelegramMessage(item);
     await addProcessedItem(
       item.guid,
-      convertGMTToIsraelTime(
-        item.pubDate || item.isoDate || new Date().toUTCString()
-      )
+      convertToIsraelTime(new Date(item.pubDate || Date.now()))
     );
-    lastMessageTime = convertGMTToIsraelTime(Date.now()).getTime();
+    lastMessageTime = currentTime;
   }
 }
 
-function convertGMTToIsraelTime(dateInput: string | number | Date): Date {
-  const gmtDate = new Date(dateInput);
-  const israelTimeString = gmtDate.toLocaleString("he-IL", {
-    timeZone: "Asia/Jerusalem",
-    hour12: false,
-  });
-  return new Date(israelTimeString);
+function convertToIsraelTime(date: Date | string): Date {
+  const inputDate = new Date(date);
+
+  // Create a date object in the Israel time zone
+  const israelDate = new Date(
+    inputDate.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" })
+  );
+
+  // Adjust for the difference between local time and Israel time
+  const offset = israelDate.getTime() - inputDate.getTime();
+
+  // Create a new date object with the correct offset
+  return new Date(inputDate.getTime() + offset);
 }
 
 startRssMonitor();

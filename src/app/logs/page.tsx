@@ -1,16 +1,14 @@
-import { getLogs } from "@/lib/db";
+import LogsViewWrapper from "@/components/LogsViewWrapper";
+import { Suspense } from "react";
 
 export default async function LogsPage() {
   try {
-    const logs = await getLogs();
     return (
       <div>
         <h1>Logs</h1>
-        <ul>
-          {logs.map((log, index) => (
-            <li key={index}>{log.message}</li>
-          ))}
-        </ul>
+        <Suspense fallback={<div>Loading processed items...</div>}>
+          <LogsViewWrapper />
+        </Suspense>
       </div>
     );
   } catch (error) {

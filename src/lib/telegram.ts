@@ -75,8 +75,10 @@ function validateImageUrl(url: string | null): string | null {
     return null;
   }
 }
-
 export async function sendTelegramMessage(item: CustomItem) {
+  return;
+}
+/* export async function sendTelegramMessage(item: CustomItem) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -88,6 +90,7 @@ export async function sendTelegramMessage(item: CustomItem) {
   const client = axios.create({ baseURL: apiUrl });
 
   const imageUrl = validateImageUrl(extractImageUrl(item.content));
+  
   const plainTextSummary = extractPlainTextSummary(item.content);
   const formattedTags = getItemTagsFormat(item);
 
@@ -95,6 +98,7 @@ export async function sendTelegramMessage(item: CustomItem) {
 
     ${plainTextSummary}${plainTextSummary ? "\n\n" : ""}${formattedTags}`);
   try {
+    
     if (imageUrl && !imageUrl.includes(DEFAULT_IMAGE_ID)) {
       console.log("Sending message with photo:", {
         chatId,
@@ -131,4 +135,4 @@ export async function sendTelegramMessage(item: CustomItem) {
     }
     throw error;
   }
-}
+} */

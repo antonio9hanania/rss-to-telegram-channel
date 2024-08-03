@@ -1,6 +1,6 @@
 export interface MonitorStatus {
   status: "working" | "stopped";
-  lastCheckTime: Date | null;
+  lastCheckTime: string;
 }
 
 export interface FeedStatus {

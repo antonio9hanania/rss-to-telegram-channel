@@ -1,15 +1,21 @@
-import { getMonitorStatus } from "@/lib/rssMonitor";
+import { getMonitorStatus, convertToIsraelTime } from "@/lib/rssMonitor";
 import { getRssFeedStatus } from "@/lib/db";
 import StatusDisplay from "./StatusDisplay";
 
-// This will cause the component to be re-rendered every 5 seconds on the server
-export const revalidate = 5;
+export const revalidate = 5; // Revalidate every 5 seconds
 
 export default async function StatusDisplayWrapper() {
   const monitorStatus = getMonitorStatus();
   const feedStatus = await getRssFeedStatus();
 
+  const formattedStatus = {
+    ...monitorStatus,
+    lastCheckTime: monitorStatus.lastCheckTime
+      ? convertToIsraelTime(monitorStatus.lastCheckTime).toString()
+      : "",
+  };
+
   return (
-    <StatusDisplay monitorStatus={monitorStatus} feedStatus={feedStatus} />
+    <StatusDisplay monitorStatus={formattedStatus} feedStatus={feedStatus} />
   );
 }

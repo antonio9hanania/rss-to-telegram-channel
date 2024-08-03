@@ -1,12 +1,16 @@
 import { getProcessedItems } from "@/lib/db";
+import { convertToIsraelTime } from "@/lib/rssMonitor";
 import DbView from "./DbView";
 
-export default async function DbViewWrapper() {
-  const items = await getProcessedItems();
+export const revalidate = 30; // Revalidate every 30 seconds
 
-  if (!items) {
-    throw new Error("Failed to fetch items");
-  }
+export default async function DbViewWrapper() {
+  const rawItems = await getProcessedItems();
+  const items = rawItems.map((item) => ({
+    ...item,
+    published_at: convertToIsraelTime(item.published_at),
+    processed_at: convertToIsraelTime(item.processed_at),
+  }));
 
   return <DbView items={items} />;
 }

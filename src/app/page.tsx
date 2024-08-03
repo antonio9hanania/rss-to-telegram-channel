@@ -15,7 +15,7 @@ export default function Home() {
           <Link href="/logs" className={styles.link}>
             View Logs
           </Link>
-          <Link href="/processed-items" className={styles.link}>
+          <Link href="/db-view" className={styles.link}>
             View Processed Items
           </Link>
         </div>

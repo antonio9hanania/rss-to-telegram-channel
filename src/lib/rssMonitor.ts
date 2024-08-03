@@ -1,6 +1,7 @@
 import axios from "axios";
 import { customParser, postProcessItems, CustomItem } from "./customParser";
-import { toDate, formatInTimeZone } from "date-fns-tz";
+import { parseISO } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { addProcessedItem, isItemProcessed, addLog } from "./db";
 import { sendTelegramMessage } from "./telegram";
 import { json } from "stream/consumers";
@@ -166,6 +167,12 @@ async function processQueuedMessages() {
   }
 }
 
+export function convertToIsraelTime(date: Date | string | number): Date {
+  const parsedDate = typeof date === "string" ? parseISO(date) : new Date(date);
+  return toZonedTime(parsedDate, "Asia/Jerusalem");
+}
+
+/* 
 function convertToIsraelTime(date: Date | string | number): Date {
   // Convert input to Date object if it's a string or number
   const inputDate = toDate(date);
@@ -179,7 +186,7 @@ function convertToIsraelTime(date: Date | string | number): Date {
   );
 
   return new Date(israelDateString);
-}
+} */
 /* function convertToIsraelTime(date: Date | string): Date {
   const inputDate = new Date(date);
 

@@ -1,17 +1,31 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import styles from "./StatusDisplay.module.scss";
-import { MonitorStatus, FeedStatus } from "@/types/monitor";
 
 interface StatusDisplayProps {
-  monitorStatus: MonitorStatus;
-  feedStatus: FeedStatus;
+  monitorStatus: {
+    status: "working" | "stopped";
+    lastCheckTime: string | null;
+  };
+  feedStatus: {
+    itemsProcessed: number;
+    errors: number;
+  };
 }
 
 export default function StatusDisplay({
   monitorStatus,
   feedStatus,
 }: StatusDisplayProps) {
+  const [lastCheckTime, setLastCheckTime] = useState(
+    monitorStatus.lastCheckTime
+  );
+
+  useEffect(() => {
+    setLastCheckTime(monitorStatus.lastCheckTime);
+  }, [monitorStatus.lastCheckTime]);
+
   return (
     <div className={styles.statusDisplay}>
       <p className={styles.status}>
@@ -24,12 +38,7 @@ export default function StatusDisplay({
           {monitorStatus.status}
         </span>
       </p>
-      <p>
-        Last Check:{" "}
-        {monitorStatus.lastCheckTime
-          ? new Date(monitorStatus.lastCheckTime).toLocaleString()
-          : "Never"}
-      </p>
+      <p>Last Check: {lastCheckTime || "Never"}</p>
       <p>Items Processed: {feedStatus.itemsProcessed}</p>
       <p>Errors: {feedStatus.errors}</p>
     </div>

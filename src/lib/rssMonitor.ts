@@ -200,5 +200,3 @@ function convertToIsraelTime(date: Date | string | number): Date {
   // Create a new date object with the correct offset
   return new Date(inputDate.getTime() + offset);
 } */
-
-startRssMonitor();

@@ -21,7 +21,6 @@ export default function LogsView({ logs }: DbViewProps) {
 
   return (
     <div className="container">
-      <h1>Processed Items</h1>
       <div>
         <ul>
           {logs.map((log, index) => (

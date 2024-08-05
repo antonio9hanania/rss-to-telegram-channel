@@ -1,9 +1,12 @@
 import { Suspense } from "react";
 import styles from "@/styles/Home.module.scss";
 import Link from "next/link";
+import { startRssMonitor } from "@/lib/rssMonitor";
 import StatusDisplayWrapper from "@/components/StatusDisplayWrapper";
 
 export default function Home() {
+  startRssMonitor();
+
   return (
     <main className={styles.main}>
       <div className={styles.container}>

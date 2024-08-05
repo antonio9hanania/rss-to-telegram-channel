@@ -2,8 +2,6 @@ import { getProcessedItems } from "@/lib/db";
 import DbView from "./DbView";
 import { formatIsraelTime } from "@/lib/utils";
 
-export const revalidate = 30; // Revalidate every 30 seconds
-
 export default async function DbViewWrapper() {
   const rawItems = await getProcessedItems();
   const items = rawItems.map((item) => ({

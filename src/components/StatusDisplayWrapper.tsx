@@ -4,9 +4,7 @@ import { formatIsraelTime } from "@/lib/utils";
 import { getRssFeedStatus } from "@/lib/db";
 import StatusDisplay from "./StatusDisplay";
 
-export const revalidate = 5; // Revalidate every 5 seconds
-
-export default async function StatusDisplayWrapper() {
+async function getStatus() {
   const monitorStatus = getMonitorStatus();
   const feedStatus = await getRssFeedStatus();
 
@@ -20,4 +18,9 @@ export default async function StatusDisplayWrapper() {
   return (
     <StatusDisplay monitorStatus={formattedStatus} feedStatus={feedStatus} />
   );
+}
+export default async function StatusDisplayWrapper() {
+  setInterval(getStatus, 5000);
+
+  return getStatus();
 }

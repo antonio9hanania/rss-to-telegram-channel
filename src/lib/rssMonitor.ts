@@ -32,9 +32,9 @@ export function startRssMonitor() {
     monitorStartTime = convertToIsraelTime(new Date());
     //monitorStartTime.setHours(monitorStartTime.getHours() - 4);
     lastCheckTime = monitorStartTime;
-    checkRssFeeds(); // Initial check
     monitorInterval = setInterval(checkRssFeeds, RSS_CHECK_INTERVAL); // Check every 5 seconds
     setInterval(processQueuedMessages, TELEGRAM_RATE_LIMIT); // Process queue every 15 seconds
+    checkRssFeeds(); // Initial check
     console.log("RSS monitor started");
   }
 }

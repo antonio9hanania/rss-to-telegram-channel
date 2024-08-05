@@ -15,6 +15,11 @@ const nextConfig = {
             key: "Cache-Control",
             value: "cache-control: public, max-age=0, must-revalidate",
           },
+
+          {
+            key: "X-Vercel-Cache",
+            value: "BYPASS",
+          },
         ],
       },
     ];

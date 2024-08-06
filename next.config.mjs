@@ -13,12 +13,15 @@ const nextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "cache-control: public, max-age=0, must-revalidate",
+            value: "no-cache",
           },
-
           {
-            key: "X-Vercel-Cache",
-            value: "BYPASS",
+            key: "Vercel-CDN-Cache-Control",
+            value: "no-cache",
+          },
+          {
+            key: "CDN-Cache-Control",
+            value: "no-cache",
           },
         ],
       },

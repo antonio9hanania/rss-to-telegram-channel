@@ -3,8 +3,8 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/cron-rss-monitor",
-      "schedule": "1 * * * *"
+      "path": "/",
+      "schedule": "0 0 * * *"
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/cron-rss-monitor",
+      "schedule": "1 * * * *"
+    }
+  ]
+}
